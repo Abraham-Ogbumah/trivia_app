@@ -65,7 +65,7 @@ You can optionally update this game play to increase the number of questions or 
 
 ### Expected endpoints and behaviors
 
-`GET '/categories'`
+`GET '/categories'` (done)
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
@@ -118,7 +118,7 @@ You can optionally update this game play to increase the number of questions or 
 
 ---
 
-`GET '/categories/${id}/questions'`
+`GET '/categories/${id}/questions'` (done)
 
 - Fetches questions for a cateogry specified by id request argument
 - Request Arguments: `id` - integer
@@ -142,7 +142,7 @@ You can optionally update this game play to increase the number of questions or 
 
 ---
 
-`DELETE '/questions/${id}'`
+`DELETE '/questions/${id}'` (done)
 
 - Deletes a specified question using the id of the question
 - Request Arguments: `id` - integer
