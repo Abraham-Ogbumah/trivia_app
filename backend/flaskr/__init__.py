@@ -63,11 +63,17 @@ def create_app(test_config=None):
         start = (page - 1) * 10
         end = start + 10
 
-        questions = Question.query.all().paginate(page=page, per_page=QUESTIONS_PER_PAGE)
-        formatted_questions = [question.format() for question in questions]
+        questions = Question.query.order_by(Question.id).paginate(page=page, per_page=QUESTIONS_PER_PAGE)
+        formatted_questions = [question.format() for question in questions.items]
+
+        categories = Category.query.order_by(Category.id).all()
+        formatted_categories = [category.format() for category in categories]
+
         return jsonify({
             'success': True,
-            'questions': formatted_questions[start:end]
+            'questions': formatted_questions,
+            'total_questions': questions.total,
+            'categories': formatted_categories
         })
     """
     @TODO:
@@ -153,6 +159,39 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     """
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            "success": False,
+            "error": 400,
+            "message": "bad request"
+        }), 400
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 404,
+            "message": "resource not found"
+        }), 404
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        print(error)
+        return jsonify({
+            "success": False,
+            "error": 422,
+            "message": "unprocessable"
+        }), 422
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        print(error)
+        return jsonify({
+            "success": False,
+            "error": 500,
+            "message": "internal server error"
+        }), 500
 
     return app
 
