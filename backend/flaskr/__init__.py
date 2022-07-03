@@ -12,12 +12,13 @@ QUESTIONS_PER_PAGE = 10
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
-    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-    setup_db(app)
 
     """
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
+    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    setup_db(app)
 
     """
     @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -67,7 +68,7 @@ def create_app(test_config=None):
         formatted_questions = [question.format() for question in questions.items]
 
         categories = Category.query.order_by(Category.id).all()
-        formatted_categories = [category.format() for category in categories]
+        formatted_categories = {category.format() for category in categories}
 
         return jsonify({
             'success': True,
@@ -106,7 +107,30 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
+    @app.route('/', methods=['POST'])
+    def create_question():
+        body = request.get_json()
 
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_difficulty = body.gt('difficulty', None)
+        new_category = body.get('category', None)
+
+        try:
+            question = Question(
+                question = new_question,
+                answer = new_answer,
+                difficulty = new_difficulty,
+                category = new_category
+            )
+            question.insert()
+        
+            return jsonify({
+                'success': True
+            })
+
+        except:
+            abort(422)
     """
     @TODO:
     Create a POST endpoint to get questions based on a search term.
@@ -117,6 +141,26 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+    @app.route('/questions//search', methods=['POST'])
+    def search():
+        
+        body = request.get_json()
+        search = body.get('searchTerm', None)
+
+        try:
+            questions = Question.query.order_by(Question.id).filter(Question.question.ilike('%{}%'.format(search)))
+
+            questions_formatted = [question.format() for question in questions]
+
+            return jsonify({
+              'success': True,
+              'questions': questions_formatted,
+              'total_questions': len(questions),
+              'current_category': None,
+            })
+        except Exception:
+            abort(422)
+
 
     """
     @TODO:
@@ -153,6 +197,34 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+    @app.route('/quizzes', methods=['POST'])
+    def get_quiz():
+        try:
+
+            body = request.get_json()
+
+            if not ('quiz_category' in body and 'previous_questions' in body):
+                abort(422)
+
+            category = body.get('quiz_category')
+            previous_questions = body.get('previous_questions')
+
+            if category['type'] == 'click':
+                available_questions = Question.query.filter(
+                    Question.id.notin_((previous_questions))).all()
+            else:
+                available_questions = Question.query.filter_by(
+                    category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+
+            new_question = available_questions[random.randrange(
+                0, len(available_questions))].format() if len(available_questions) > 0 else None
+
+            return jsonify({
+                'success': True,
+                'question': new_question
+            })
+        except:
+            abort(422)
 
     """
     @TODO:

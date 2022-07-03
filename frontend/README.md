@@ -86,7 +86,7 @@ You can optionally update this game play to increase the number of questions or 
 
 ---
 
-`GET '/questions?page=${integer}'`
+`GET '/questions?page=${integer}'` (done)
 
 - Fetches a paginated set of questions, a total number of questions, all categories and current category string.
 - Request Arguments: `page` - integer
@@ -178,7 +178,7 @@ You can optionally update this game play to increase the number of questions or 
 
 ---
 
-`POST '/questions'`
+`POST '/questions'` (done)
 
 - Sends a post request in order to add a new question
 - Request Body:
